@@ -52,13 +52,13 @@ class Map1 : public Grid {
             int spyY = spy->getY();
             switch (direction) {
                 case 'w':
-                    return grid[spyX - 1][spyY] == nullptr || grid[spyX - 1][spyY]->getIcon() != '#';
+                    return grid[spyX - 1][spyY]->getIcon() != '#';
                 case 'a':
-                    return grid[spyX][spyY - 1] == nullptr || grid[spyX][spyY - 1]->getIcon() != '#';
+                    return grid[spyX][spyY - 1]->getIcon() != '#';
                 case 's':
-                    return grid[spyX + 1][spyY] == nullptr || grid[spyX + 1][spyY]->getIcon() != '#';
+                    return grid[spyX + 1][spyY]->getIcon() != '#';
                 case 'd':
-                    return grid[spyX][spyY + 1] == nullptr || grid[spyX][spyY + 1]->getIcon() != '#';
+                    return grid[spyX][spyY + 1]->getIcon() != '#';
                 default:
                     return false;
             }
@@ -68,21 +68,17 @@ class Map1 : public Grid {
             spy = new Spy(5, 1);
             guard.push_back(new Guard(1, 5));
             // Walls
-            for (int i = 0; i < 10; i++)
-            {
-                addSprite(0, i, new Wall(0, i));
-                addSprite(9, i, new Wall(9, i));
+            for (int i = 0; i < 6; i++) {
                 addSprite(i, 0, new Wall(i, 0));
-                addSprite(i, 9, new Wall(i, 9));
+                addSprite(i, 6, new Wall(i, 6));
             }
-            addSprite(2, 3, new Wall(2, 3));
-            addSprite(3, 3, new Wall(3, 3));
-            addSprite(4, 3, new Wall(4, 3));
-            addSprite(5, 3, new Wall(5, 3));
-            addSprite(6, 3, new Wall(6, 3));
+            for (int i = 1; i < 6; i++) {
+                addSprite(0, i, new Wall(0, i));
+                addSprite(5, i, new Wall(5, i));
+            }
 
             // Goal
-            addSprite(8, 8, new Goal(8, 8));
+            addSprite(4, 5, new Goal(4, 5));
 
             for (Guard* g : guard) {
                 addSprite(g->getX(), g->getY(), g);
@@ -121,7 +117,7 @@ class Map1 : public Grid {
                 grid[spy->getX()][spy->getY()] = spy; // Place the spy in the new location in grid
                 return true;
             }
-            return false; // Invalid move
+            return false; // Invalid move, get program to ask for input again
         }
 
 };
