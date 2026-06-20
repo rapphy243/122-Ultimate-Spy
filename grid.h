@@ -48,15 +48,17 @@ class Map1 : public Grid {
         Spy* spy;
         std::vector<Guard*> guard;
         bool isValidMove(char direction) {
+            int spyX = spy->getX();
+            int spyY = spy->getY();
             switch (direction) {
                 case 'w':
-                    return grid[spy->getX() - 1][spy->getY()] == nullptr || grid[spy->getX() - 1][spy->getY()]->getIcon() != '#';
+                    return grid[spyX - 1][spyY] == nullptr || grid[spyX - 1][spyY]->getIcon() != '#';
                 case 'a':
-                    return grid[spy->getX()][spy->getY() - 1] == nullptr || grid[spy->getX()][spy->getY() - 1]->getIcon() != '#';
+                    return grid[spyX][spyY - 1] == nullptr || grid[spyX][spyY - 1]->getIcon() != '#';
                 case 's':
-                    return grid[spy->getX() + 1][spy->getY()] == nullptr || grid[spy->getX() + 1][spy->getY()]->getIcon() != '#';
+                    return grid[spyX + 1][spyY] == nullptr || grid[spyX + 1][spyY]->getIcon() != '#';
                 case 'd':
-                    return grid[spy->getX()][spy->getY() + 1] == nullptr || grid[spy->getX()][spy->getY() + 1]->getIcon() != '#';
+                    return grid[spyX][spyY + 1] == nullptr || grid[spyX][spyY + 1]->getIcon() != '#';
                 default:
                     return false;
             }
@@ -64,6 +66,7 @@ class Map1 : public Grid {
     public:
         Map1() {
             spy = new Spy(5, 1);
+            guard.push_back(new Guard(1, 5));
             // Walls
             for (int i = 0; i < 10; i++)
             {
@@ -81,38 +84,44 @@ class Map1 : public Grid {
             // Goal
             addSprite(8, 8, new Goal(8, 8));
 
-            // Guard
-            addSprite(1, 5, new Guard(1, 5));
-
+            for (Guard* g : guard) {
+                addSprite(g->getX(), g->getY(), g);
+            }
             // Spy
             addSprite(spy->getX(), spy->getY(), spy);
         }
-        void moveSpy(char direction) {
+        bool moveSpy(char direction) {
             if (isValidMove(direction)) {
-                // move spy
-                grid[spy->getX()][spy->getY()] = nullptr;
-                switch (direction) {
+                char icon;
+                int spyX = spy->getX();
+                int spyY = spy->getY();
+                grid[spyX][spyY] = nullptr; // Remove the spy from the current location in grid
+                switch (direction) { // Change the location of the spy object
                     case 'w':
-                        spy->setX(spy->getX() - 1);
+                        spy->setX(spyX - 1);
                         break;
                     case 'a':
-                        spy->setY(spy->getY() - 1);
+                        spy->setY(spyY - 1);
                         break;
                     case 's':
-                        spy->setX(spy->getX() + 1);
+                        spy->setX(spyX + 1);
                         break;
                     case 'd':
-                        spy->setY(spy->getY() + 1);
+                        spy->setY(spyY + 1);
                         break;
                 }
-                // check if spy is on goal
-                if (grid[spy->getX()][spy->getY()] != nullptr && grid[spy->getX()][spy->getY()]->getIcon() == '$') {
-                    std::cout << "You win!" << std::endl;
+                icon = grid[spy->getX()][spy->getY()]->getIcon(); // Get the icon of the new location in grid
+                if (icon == '$') { // Check if the new location is the goal
+                    std::cout << "You win!\n";
+                    exit(0);
+                } else if (icon == '^' || icon == '>' || icon == 'v' || icon == '<') { // Check if the new location is a guard
+                    std::cout << "You lose!\n";
                     exit(0);
                 }
-                if
-                grid[spy->getX()][spy->getY()] = spy;
+                grid[spy->getX()][spy->getY()] = spy; // Place the spy in the new location in grid
+                return true;
             }
+            return false; // Invalid move
         }
 
 };
