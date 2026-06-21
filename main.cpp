@@ -38,9 +38,9 @@ void menu(char& restartCharacter) {
 
     cout << "\n\tWelcome to Ultra-Spy!\n\n";
     cout << "\n\tSelect a level:\n\n";
-    cout << "\t1) Level 1: Basic Movement\n";
-    cout << "\t2) Level 2: Advanced Movement\n";
-    cout << "\t3) Level 3: Ultimate Challenge\n";
+    cout << "\t1) Level 1\n";
+    cout << "\t2) Level 2\n";
+    cout << "\t3) Level 3\n";
     cout << "\t4) Quit\n\n";
     cout << "Your selection: ";
     cin >> menuSelected;
@@ -52,10 +52,10 @@ void menu(char& restartCharacter) {
             playMap(Map1());
             break;
         case '2':
-            //playMap(Map2());
+            playMap(Map2());
             break;
         case '3':
-            //playMap(Map3());
+            playMap(Map3());
             break;
         default:
             restartCharacter = 'n';
@@ -72,9 +72,14 @@ void menu(char& restartCharacter) {
 
 int main() {
     srand(static_cast<unsigned int>(time(nullptr)));
+    bool isTest = false;
     char restartCharacter;
-    do {
-        menu(restartCharacter);
-    } while (tolower(restartCharacter) == 'y');
-    return 0;
+    if (isTest) {
+        playMap(Map3());
+    }
+    else {
+        do {
+            menu(restartCharacter);
+        } while (restartCharacter != 'n');
+    }
 }
