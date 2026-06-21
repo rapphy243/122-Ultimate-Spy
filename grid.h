@@ -1,132 +1,163 @@
 #ifndef GRID_H
 #define GRID_H
 
-#include <random>
+#include <iostream>
+#include <vector>
 #include "sprites.h"
 
-bool isValidMove(char direction, Sprite* grid[10][10], const Spy& spy) {
+using Board = std::vector<std::vector<Sprite *>>;
+
+char getCellIcon(Board &grid, int x, int y) {
+    Sprite* cell = grid[x][y];
+    return cell == nullptr ? ' ' : cell->getIcon();
+}
+
+bool isValidMove(char direction, Board &grid, Spy &spy) {
     int spyX = spy.getX();
     int spyY = spy.getY();
-    switch (direction)
-    {
+    switch (direction) {
     case 'w':
-        return grid[spyX - 1][spyY]->getIcon() != '#';
+        return getCellIcon(grid, spyX - 1, spyY) != '#';
     case 'a':
-        return grid[spyX][spyY - 1]->getIcon() != '#';
+        return getCellIcon(grid, spyX, spyY - 1) != '#';
     case 's':
-        return grid[spyX + 1][spyY]->getIcon() != '#';
+        return getCellIcon(grid, spyX + 1, spyY) != '#';
     case 'd':
-        return grid[spyX][spyY + 1]->getIcon() != '#';
+        return getCellIcon(grid, spyX, spyY + 1) != '#';
     default:
         return false;
     }
 }
 
-bool moveSpy(char direction, Sprite* grid[10][10], Spy* spy) {
-    if (isValidMove(direction, grid, *spy)){
-        char icon;
+bool moveSpy(char direction, Board &grid, Spy *spy) {
+    if (isValidMove(direction, grid, *spy)) {
         int spyX = spy->getX();
         int spyY = spy->getY();
-        grid[spyX][spyY] = nullptr; // Remove the spy from the current location in grid
-        switch (direction)
-        { // Change the location of the spy object
+        int nextX = spyX;
+        int nextY = spyY;
+
+        switch (direction) {
         case 'w':
-            spy->setX(spyX - 1);
+            nextX = spyX - 1;
             break;
         case 'a':
-            spy->setY(spyY - 1);
+            nextY = spyY - 1;
             break;
         case 's':
-            spy->setX(spyX + 1);
+            nextX = spyX + 1;
             break;
         case 'd':
-            spy->setY(spyY + 1);
+            nextY = spyY + 1;
             break;
         }
-        icon = grid[spy->getX()][spy->getY()]->getIcon(); // Get the icon of the new location in grid
-        if (icon == '$')
-        { // Check if the new location is the goal
+
+        char icon = getCellIcon(grid, nextX, nextY);
+        if (icon == '$') {
             std::cout << "You win!\n";
             exit(0);
         }
-        else if (icon == '^' || icon == '>' || icon == 'v' || icon == '<')
-        { // Check if the new location is a guard
+        else if (icon == '^' || icon == '>' || icon == 'v' || icon == '<') {
             std::cout << "You lose!\n";
             exit(0);
         }
-        grid[spy->getX()][spy->getY()] = spy; // Place the spy in the new location in grid
+
+        grid[spyX][spyY] = nullptr;
+        spy->setX(nextX);
+        spy->setY(nextY);
+        grid[nextX][nextY] = spy;
         return true;
     }
-    return false; // Invalid move, get program to ask for input again
+    return false;
 }
 
-void moveGuard(Guard* guard, Sprite* grid[10][10], Spy* spy) {
+void moveGuard(Guard *guard, Board &grid, Spy *spy) {
     char direction = guard->getIcon();
     int guardX = guard->getX();
     int guardY = guard->getY();
     char nextIcon;
+
     switch (direction) {
     case '^':
-        nextIcon = grid[guardX - 1][guardY]->getIcon();
+        nextIcon = getCellIcon(grid, guardX - 1, guardY);
         if (nextIcon == ' ') {
             if (rand() % 2) {
                 guard->setIcon(randDirection());
-            } else {
+            }
+            else {
                 grid[guardX][guardY] = nullptr;
                 guard->setX(guardX - 1);
+                guard->setY(guardY);
+                grid[guardX - 1][guardY] = guard;
             }
-        } else if (nextIcon == '@') {
+        }
+        else if (nextIcon == '@') {
             std::cout << "You lose!\n";
             exit(0);
-        } else {
+        }
+        else {
             guard->setIcon(randDirection());
         }
         break;
     case '>':
-        nextIcon = grid[guardX][guardY + 1]->getIcon();
+        nextIcon = getCellIcon(grid, guardX, guardY + 1);
         if (nextIcon == ' ') {
             if (rand() % 2) {
                 guard->setIcon(randDirection());
-            } else {
-                grid[guardX][guardY] = nullptr;
-                guard->setY(guardY + 1);
             }
-        } else if (nextIcon == '@') {
+            else {
+                grid[guardX][guardY] = nullptr;
+                guard->setX(guardX);
+                guard->setY(guardY + 1);
+                grid[guardX][guardY + 1] = guard;
+            }
+        }
+        else if (nextIcon == '@') {
             std::cout << "You lose!\n";
             exit(0);
-        } else {
+        }
+        else {
             guard->setIcon(randDirection());
         }
         break;
     case 'v':
-        nextIcon = grid[guardX + 1][guardY]->getIcon();
+        nextIcon = getCellIcon(grid, guardX + 1, guardY);
         if (nextIcon == ' ') {
             if (rand() % 2) {
                 guard->setIcon(randDirection());
-            } else {
+            }
+            else {
                 grid[guardX][guardY] = nullptr;
                 guard->setX(guardX + 1);
+                guard->setY(guardY);
+                grid[guardX + 1][guardY] = guard;
             }
-        } else if (nextIcon == '@') {
+        }
+        else if (nextIcon == '@') {
             std::cout << "You lose!\n";
             exit(0);
-        } else {
+        }
+        else {
             guard->setIcon(randDirection());
         }
         break;
     case '<':
-        nextIcon = grid[guardX][guardY - 1]->getIcon();
+        nextIcon = getCellIcon(grid, guardX, guardY - 1);
         if (nextIcon == ' ') {
             if (rand() % 2) {
                 guard->setIcon(randDirection());
-            } else {
-                grid[guardX][guardY] = nullptr;
-                guard->setY(guardY - 1);
             }
-        } else if (nextIcon == '@') {
+            else {
+                grid[guardX][guardY] = nullptr;
+                guard->setX(guardX);
+                guard->setY(guardY - 1);
+                grid[guardX][guardY - 1] = guard;
+            }
+        }
+        else if (nextIcon == '@') {
             std::cout << "You lose!\n";
             exit(0);
-        } else {
+        }
+        else {
             guard->setIcon(randDirection());
         }
         break;
@@ -135,40 +166,42 @@ void moveGuard(Guard* guard, Sprite* grid[10][10], Spy* spy) {
 
 class Grid {
     protected:
-        Sprite* grid[10][10];
+        Board grid;
         Spy *spy;
-        std::vector<Guard*> guard;
+        std::vector<Guard *> guard;
+
         void addSprite(int x, int y, Sprite *s) {
             grid[x][y] = s;
         }
 
     public:
         Grid() {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 10; j++) {
-                    grid[i][j] = nullptr;
-                }
-            }
-            spy = nullptr;
-            guard = {};
+           grid = Board(10, std::vector<Sprite*>(10, nullptr));
+           spy = nullptr;
+           guard = std::vector<Guard *>();
         }
 
         void printGrid() {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 10; j++) {
-                    if (grid[i][j] == nullptr) {
+            for (auto &row : grid) {
+               for (Sprite *cell : row) {
+                   if (cell == nullptr) {
                         std::cout << ' ';
-                    } else {
-                        std::cout << *grid[i][j];
+                    }
+                    else {
+                        std::cout << *cell;
                     }
                 }
                 std::cout << std::endl;
             }
+        }   
+
+        Board& getGrid() {
+            return grid;
         }
         Spy* getSpy() {
             return spy;
         }
-        std::vector<Guard*> getGuards() {
+        std::vector<Guard*>& getGuards()  {
             return guard;
         }
 };
