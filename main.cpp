@@ -4,28 +4,77 @@
 
 using namespace std;
 
-int main() {
-    Grid map1 = Map1();
-    Spy *spy = map1.getSpy();
-    vector<Guard *> guards = map1.getGuards();
-    vector<vector<Sprite*>>& grid = map1.getGrid();
+inline constexpr streamsize INF_FLAG{numeric_limits<streamsize>::max()};
+inline const string clearAndGoHome{"\x1B[2J\x1B[H"};
 
-    map1.printGrid();
+void playMap(Grid selectedMap) {
+    Grid map = selectedMap;
+    Spy *spy = map.getSpy();
+    vector<Guard *> guards = map.getGuards();
+    vector<vector<Sprite*>> &grid = map.getGrid();
+
+    map.printGrid();
     while (true) {
         char input;
         cout << "Enter move (w/a/s/d): ";
         cin >> input;
         if (moveSpy(input, grid, spy)) {
-            for (Guard *g : guards)
-            {
+            for (Guard *g : guards) {
                 moveGuard(g, grid, spy);
             }
-            map1.printGrid();
+            cout << clearAndGoHome;
+            map.printGrid();
         }
         else {
             cout << "Invalid move. Try again.\n";
         }
     }
+}
 
+
+
+void menu(char& restartCharacter) {
+    char menuSelected;
+
+    cout << "\n\tWelcome to Ultra-Spy!\n\n";
+    cout << "\n\tSelect a level:\n\n";
+    cout << "\t1) Level 1: Basic Movement\n";
+    cout << "\t2) Level 2: Advanced Movement\n";
+    cout << "\t3) Level 3: Ultimate Challenge\n";
+    cout << "\t4) Quit\n\n";
+    cout << "Your selection: ";
+    cin >> menuSelected;
+    cin.ignore(INF_FLAG, '\n');
+    cout << clearAndGoHome;
+
+    switch (menuSelected) {
+        case '1':
+            playMap(Map1());
+            break;
+        case '2':
+            //playMap(Map2());
+            break;
+        case '3':
+            //playMap(Map3());
+            break;
+        default:
+            restartCharacter = 'n';
+            break;
+    }
+
+    if (!(restartCharacter == 'n')) {
+        cout << "Go to menu? (Y/N): ";
+        cin >> restartCharacter;
+        cin.ignore(INF_FLAG, '\n');
+        cout << clearAndGoHome;
+    }
+}
+
+int main() {
+    srand(static_cast<unsigned int>(time(nullptr)));
+    char restartCharacter;
+    do {
+        menu(restartCharacter);
+    } while (tolower(restartCharacter) == 'y');
     return 0;
 }
