@@ -4,6 +4,19 @@
 #include <random>
 #include <iostream>
 
+char randDirection() {
+    switch (static_cast<short>(std::rand() % 4)) {
+    case 0:
+        return '^';
+    case 1:
+        return '>';
+    case 2:
+        return 'v';
+    default:
+        return '<';
+    }
+}
+
 class Sprite {
     protected:
         char icon;
@@ -21,20 +34,26 @@ class Sprite {
             y = yPos;
             icon = i;
         }
-        char getIcon() {
+        char getIcon() const {
             return icon;
         }
-        int getX() {
+        int getX() const {
             return x;
         }
-        int getY() {
+        int getY() const {
             return y;
+        }
+        char setIcon(char newIcon) {
+            icon = newIcon;
+            return icon;
         }
         int setX(int newX) {
             x = newX;
+            return x;
         }
         int setY(int newY) {
             y = newY;
+            return y;
         }
         friend std::ostream &operator<<(std::ostream &out, const Sprite &s) {
             out << s.icon;
@@ -61,20 +80,6 @@ class Goal : public Sprite {
 };
 
 class Guard : public Sprite {
-    private:
-    char randDirection() {
-        switch (static_cast<short>(std::rand() % 4)) {
-        case 0:
-            return '^';
-        case 1:
-            return '>';
-        case 2:
-            return 'v';
-        default:
-            return '<';
-        }
-    }
-
     public:
         Guard(int xPos, int yPos) {
             icon = randDirection();
