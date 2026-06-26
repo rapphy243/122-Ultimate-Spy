@@ -70,99 +70,53 @@ bool moveSpy(char direction, Board &grid, Spy *spy) {
     return false;
 }
 
-// I dislike this
 void moveGuard(Guard *guard, Board &grid, Spy *spy) {
-    char direction = guard->getIcon();
     int guardX = guard->getX();
     int guardY = guard->getY();
-    char nextIcon;
+    char direction = guard->getIcon();
+    int dx = 0;
+    int dy = 0;
 
     switch (direction) {
-    case '^':
-        nextIcon = getCellIcon(grid, guardX - 1, guardY);
-        if (nextIcon == ' ') {
-            if (rand() % 2) {
-                guard->setIcon(randDirection());
-            }
-            else {
-                grid[guardX][guardY] = nullptr;
-                guard->setX(guardX - 1);
-                guard->setY(guardY);
-                grid[guardX - 1][guardY] = guard;
-            }
-        }
-        else if (nextIcon == '@') {
-            std::cout << "You lose!\n";
-            exit(0);
-        }
-        else {
-            guard->setIcon(randDirection());
-        }
-        break;
-    case '>':
-        nextIcon = getCellIcon(grid, guardX, guardY + 1);
-        if (nextIcon == ' ') {
-            if (rand() % 2) {
-                guard->setIcon(randDirection());
-            }
-            else {
-                grid[guardX][guardY] = nullptr;
-                guard->setX(guardX);
-                guard->setY(guardY + 1);
-                grid[guardX][guardY + 1] = guard;
-            }
-        }
-        else if (nextIcon == '@') {
-            std::cout << "You lose!\n";
-            exit(0);
-        }
-        else {
-            guard->setIcon(randDirection());
-        }
-        break;
-    case 'v':
-        nextIcon = getCellIcon(grid, guardX + 1, guardY);
-        if (nextIcon == ' ') {
-            if (rand() % 2) {
-                guard->setIcon(randDirection());
-            }
-            else {
-                grid[guardX][guardY] = nullptr;
-                guard->setX(guardX + 1);
-                guard->setY(guardY);
-                grid[guardX + 1][guardY] = guard;
-            }
-        }
-        else if (nextIcon == '@') {
-            std::cout << "You lose!\n";
-            exit(0);
-        }
-        else {
-            guard->setIcon(randDirection());
-        }
-        break;
-    case '<':
-        nextIcon = getCellIcon(grid, guardX, guardY - 1);
-        if (nextIcon == ' ') {
-            if (rand() % 2) {
-                guard->setIcon(randDirection());
-            }
-            else {
-                grid[guardX][guardY] = nullptr;
-                guard->setX(guardX);
-                guard->setY(guardY - 1);
-                grid[guardX][guardY - 1] = guard;
-            }
-        }
-        else if (nextIcon == '@') {
-            std::cout << "You lose!\n";
-            exit(0);
-        }
-        else {
-            guard->setIcon(randDirection());
-        }
-        break;
+        case '^': 
+            dx = -1; 
+            break;
+        case '>': 
+            dy = 1; 
+            break;
+        case 'v': 
+            dx = 1; 
+            break;
+        case '<': 
+            dy = -1; 
+            break;
     }
+
+    int visionX = guardX + dx;
+    int visionY = guardY + dy;
+
+    while (getCellIcon(grid, visionX, visionY) != '#') {
+        visionX += dx;
+        visionY += dy;
+        if (getCellIcon(grid, visionX, visionY) == '@') {
+            std::cout << "You lose!\n";
+            exit(0);
+        }
+    }
+
+    int nextX = guardX + dx;
+    int nextY = guardY + dy;
+
+    if (getCellIcon(grid, nextX, nextY) != ' ') {
+        guard->oppositeDirection();
+        nextX = guardX;
+        nextY = guardY;
+    }
+
+    grid[guardX][guardY] = nullptr;
+    guard->setX(nextX);
+    guard->setY(nextY);
+    grid[nextX][nextY] = guard;
 }
 
 class Grid {
@@ -219,8 +173,8 @@ class Map1 : public Grid {
     public:
         Map1() {
             spy = new Spy(4, 1);
-            guard.push_back(new Guard(1, 5));
-            guard.push_back(new Guard(2, 1));
+            guard.push_back(new Guard(1, 5, 'v'));
+            guard.push_back(new Guard(2, 1, '>'));
             // Walls
             for (int i = 0; i < 6; i++) { // Top and bottom walls
                 addSprite(i, 0, new Wall(i, 0));
@@ -252,8 +206,8 @@ class Map2 : public Grid {
     public:
         Map2() {
             spy = new Spy(8, 1);
-            guard.push_back(new Guard(5, 5));
-            guard.push_back(new Guard(2, 8));
+            guard.push_back(new Guard(5, 5, '>'));
+            guard.push_back(new Guard(3, 5, '>'));
             // Walls
             for (int i = 0; i < 10; i++) { // Top and bottom walls
                 addSprite(i, 0, new Wall(i, 0));
@@ -289,8 +243,8 @@ class Map3 : public Grid {
         Map3() {
             grid = Board(11, std::vector<Sprite *>(11, nullptr));
             spy = new Spy(9, 1);
-            guard.push_back(new Guard(4, 5));
-            guard.push_back(new Guard(2, 8));
+            guard.push_back(new Guard(4, 5, '<'));
+            guard.push_back(new Guard(2, 8, '^'));
             // Walls
             for (int i = 0; i < 11; i++) { // Top and bottom walls
                 addSprite(i, 0, new Wall(i, 0));

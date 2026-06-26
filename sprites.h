@@ -86,6 +86,29 @@ class Guard : public Sprite {
             x = xPos;
             y = yPos;
         }
+        Guard(int xPos, int yPos, char dir) {
+            icon = dir;
+            x = xPos;
+            y = yPos;
+        }
+        void oppositeDirection() {
+            switch (icon) {
+            case '^':
+                icon = 'v';
+                break;
+            case 'v':
+                icon = '^';
+                break;
+            case '<':
+                icon = '>';
+                break;
+            case '>':
+                icon = '<';
+                break;
+            default:
+                icon = '^';
+            }
+        }
 };
 
 class Spy : public Sprite {
