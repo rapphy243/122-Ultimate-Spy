@@ -9,21 +9,19 @@ inline const string clearAndGoHome{"\x1B[2J\x1B[H"};
 
 void playMap(Grid selectedMap) {
     Grid map = selectedMap;
-    Spy *spy = map.getSpy();
-    vector<Guard *> guards = map.getGuards();
-    vector<vector<Sprite*>> &grid = map.getGrid();
-
+    bool gameOver = map.isGameOver();
     map.printGrid();
-    while (true) {
+    while (!gameOver) {
         char input;
         cout << "Enter move (w/a/s/d): ";
         cin >> input;
-        if (moveSpy(input, grid, spy)) {
-            for (Guard *g : guards) {
-                moveGuard(g, grid, spy);
+        if (moveSpy(input, map)) {
+            moveGuards(map);
+            gameOver = map.isGameOver();
+            if (!gameOver) {
+                cout << clearAndGoHome;
+                map.printGrid();
             }
-            cout << clearAndGoHome;
-            map.printGrid();
         }
         else {
             cout << "Invalid move. Try again.\n";

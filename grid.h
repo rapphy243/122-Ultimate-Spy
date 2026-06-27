@@ -29,115 +29,26 @@ bool isValidMove(char direction, Board &grid, Spy &spy) {
     }
 }
 
-bool moveSpy(char direction, Board &grid, Spy *spy) {
-    if (isValidMove(direction, grid, *spy)) {
-        int spyX = spy->getX();
-        int spyY = spy->getY();
-        int nextX = spyX;
-        int nextY = spyY;
-
-        switch (direction) {
-        case 'w':
-            nextX = spyX - 1;
-            break;
-        case 'a':
-            nextY = spyY - 1;
-            break;
-        case 's':
-            nextX = spyX + 1;
-            break;
-        case 'd':
-            nextY = spyY + 1;
-            break;
-        }
-
-        char icon = getCellIcon(grid, nextX, nextY);
-        if (icon == '$') {
-            std::cout << "You win!\n";
-            exit(0);
-        }
-        else if (icon == '^' || icon == '>' || icon == 'v' || icon == '<') {
-            std::cout << "You lose!\n";
-            exit(0);
-        }
-
-        grid[spyX][spyY] = nullptr;
-        spy->setX(nextX);
-        spy->setY(nextY);
-        grid[nextX][nextY] = spy;
-        return true;
-    }
-    return false;
-}
-
-void moveGuard(Guard *guard, Board &grid, Spy *spy) {
-    int guardX = guard->getX();
-    int guardY = guard->getY();
-    char direction = guard->getIcon();
-    int dx = 0;
-    int dy = 0;
-
-    switch (direction) {
-        case '^': 
-            dx = -1; 
-            break;
-        case '>': 
-            dy = 1; 
-            break;
-        case 'v': 
-            dx = 1; 
-            break;
-        case '<': 
-            dy = -1; 
-            break;
-    }
-
-    int visionX = guardX + dx;
-    int visionY = guardY + dy;
-
-    while (getCellIcon(grid, visionX, visionY) != '#') {
-        if (getCellIcon(grid, visionX, visionY) == '@') {
-            std::cout << "You lose!\n";
-            exit(0);
-        }
-        visionX += dx;
-        visionY += dy;
-    }
-
-    int nextX = guardX + dx;
-    int nextY = guardY + dy;
-
-    if (getCellIcon(grid, nextX, nextY) != ' ') {
-        guard->oppositeDirection();
-        nextX = guardX;
-        nextY = guardY;
-    }
-
-    grid[guardX][guardY] = nullptr;
-    guard->setX(nextX);
-    guard->setY(nextY);
-    grid[nextX][nextY] = guard;
-}
-
 class Grid {
     protected:
-        Board grid;
+        Board board;
         Spy *spy;
         std::vector<Guard *> guard;
-
+        bool gameOver;
         void addSprite(int x, int y, Sprite *s) {
-            grid[x][y] = s;
+            board[x][y] = s;
         }
 
     public:
         Grid() {
-           grid = Board(10, std::vector<Sprite*>(10, nullptr));
-           spy = nullptr;
-           guard = std::vector<Guard *>();
+            board = Board(10, std::vector<Sprite *>(10, nullptr));
+            spy = nullptr;
+            guard = std::vector<Guard *>();
+            gameOver = false;
         }
 
         void printGrid() {
-            for (auto &row : grid) {
+            for (auto &row : board) {
                for (Sprite *cell : row) {
                    if (cell == nullptr) {
                         std::cout << ' ';
@@ -148,10 +59,16 @@ class Grid {
                 }
                 std::cout << std::endl;
             }
-        }   
+        }
+        bool isGameOver() {
+            return gameOver;
+        }
+        void setGameOver() {
+            gameOver = true;
+        }
 
-        Board& getGrid() {
-            return grid;
+        Board& getBoard() {
+            return board;
         }
         Spy* getSpy() {
             return spy;
@@ -241,7 +158,7 @@ class Map2 : public Grid {
 class Map3 : public Grid {
     public:
         Map3() {
-            grid = Board(11, std::vector<Sprite *>(11, nullptr));
+            board = Board(11, std::vector<Sprite *>(11, nullptr));
             spy = new Spy(9, 1);
             guard.push_back(new Guard(4, 5, '<'));
             guard.push_back(new Guard(2, 8, '^'));
@@ -276,5 +193,101 @@ class Map3 : public Grid {
             addSprite(spy->getX(), spy->getY(), spy);
         }
 };
+
+bool moveSpy(char direction, Grid& map) {
+    Board &board = map.getBoard();
+    Spy *spy = map.getSpy();
+    if (isValidMove(direction, board, *spy)) {
+        int spyX = spy->getX();
+        int spyY = spy->getY();
+        int nextX = spyX;
+        int nextY = spyY;
+
+        switch (direction) {
+        case 'w':
+            nextX = spyX - 1;
+            break;
+        case 'a':
+            nextY = spyY - 1;
+            break;
+        case 's':
+            nextX = spyX + 1;
+            break;
+        case 'd':
+            nextY = spyY + 1;
+            break;
+        }
+
+        char icon = getCellIcon(board, nextX, nextY);
+        if (icon == '$') {
+            std::cout << "You win!\n";
+            map.setGameOver();
+        }
+        else if (icon == '^' || icon == '>' || icon == 'v' || icon == '<') {
+            std::cout << "You lose!\n";
+            map.setGameOver();
+        }
+
+        board[spyX][spyY] = nullptr;
+        spy->setX(nextX);
+        spy->setY(nextY);
+        board[nextX][nextY] = spy;
+        return true;
+    }
+    return false;
+}
+
+void moveGuards(Grid& map) {
+    std::vector<Guard *> guards = map.getGuards();
+    Board &grid = map.getBoard();
+    for (Guard *guard : guards) {
+        int guardX = guard->getX();
+        int guardY = guard->getY();
+        char direction = guard->getIcon();
+        int dx = 0;
+        int dy = 0;
+
+        switch (direction) {
+        case '^':
+            dx = -1;
+            break;
+        case '>':
+            dy = 1;
+            break;
+        case 'v':
+            dx = 1;
+            break;
+        case '<':
+            dy = -1;
+            break;
+        }
+
+        int visionX = guardX + dx;
+        int visionY = guardY + dy;
+
+        while (getCellIcon(grid, visionX, visionY) != '#') {
+            if (getCellIcon(grid, visionX, visionY) == '@') {
+                std::cout << "You lose!\n";
+                map.setGameOver();
+            }
+            visionX += dx;
+            visionY += dy;
+        }
+
+        int nextX = guardX + dx;
+        int nextY = guardY + dy;
+
+        if (getCellIcon(grid, nextX, nextY) != ' ') {
+            guard->oppositeDirection();
+            nextX = guardX;
+            nextY = guardY;
+        }
+
+        grid[guardX][guardY] = nullptr;
+        guard->setX(nextX);
+        guard->setY(nextY);
+        grid[nextX][nextY] = guard;
+    }
+}
 
 #endif
