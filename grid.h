@@ -96,12 +96,12 @@ void moveGuard(Guard *guard, Board &grid, Spy *spy) {
     int visionY = guardY + dy;
 
     while (getCellIcon(grid, visionX, visionY) != '#') {
-        visionX += dx;
-        visionY += dy;
         if (getCellIcon(grid, visionX, visionY) == '@') {
             std::cout << "You lose!\n";
             exit(0);
         }
+        visionX += dx;
+        visionY += dy;
     }
 
     int nextX = guardX + dx;
