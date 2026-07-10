@@ -24,16 +24,8 @@ class Sprite {
         int y;
 
     public:
-        Sprite() {
-            icon = ' ';
-            x = 0;
-            y = 0;
-        }
-        Sprite(char i, int xPos, int yPos) {
-            x = xPos;
-            y = yPos;
-            icon = i;
-        }
+        virtual std::string getType() const = 0;
+        virtual std::string getDescription() const = 0;
         char getIcon() const {
             return icon;
         }
@@ -68,6 +60,12 @@ class Wall : public Sprite {
             x = xPos;
             y = yPos;
         }
+        std::string getType() const  {
+            return "Wall";
+        }
+        std::string getDescription() const {
+            return "A wall that blocks movement.";
+        }
 };
 
 class Goal : public Sprite {
@@ -76,6 +74,12 @@ class Goal : public Sprite {
             icon = '$';
             x = xPos;
             y = yPos;
+        }
+        std::string getType() const  {
+            return "Goal";
+        }
+        std::string getDescription() const {
+            return "The destination the spy must reach.";
         }
 };
 
@@ -90,6 +94,12 @@ class Guard : public Sprite {
             icon = dir;
             x = xPos;
             y = yPos;
+        }
+        std::string getType() const  {
+            return "Basic Guard";
+        }
+        std::string getDescription() const {
+            return "A guard that patrols along a line.";
         }
         void oppositeDirection() {
             switch (icon) {
@@ -111,12 +121,121 @@ class Guard : public Sprite {
         }
 };
 
+class AreaGuard : public Guard {
+    public:
+        AreaGuard(int xPos, int yPos) {
+            icon = randDirection();
+            x = xPos;
+            y = yPos;
+        }
+        AreaGuard(int xPos, int yPos, char dir) {
+            icon = dir;
+            x = xPos;
+            y = yPos;
+        }
+        std::string getType() const  {
+            return "Area Guard";
+        }
+        std::string getDescription() const {
+            return "A guard that patrols within a area.";
+        }
+        void turnRight() {
+            switch (icon) {
+            case '^':
+                icon = '>';
+                break;
+            case '>':
+                icon = 'v';
+                break;
+            case 'v':
+                icon = '<';
+                break;
+            case '<':
+                icon = '^';
+                break;
+            default:
+                icon = '^';
+            }
+        }
+};
+
 class Spy : public Sprite {
     public:
         Spy(int xPos, int yPos) {
             icon = '@';
             x = xPos;
             y = yPos;
+        }
+        std::string getType() const  {
+            return "Spy";
+        }
+        std::string getDescription() const {
+            return "The player.";
+        }
+};
+
+class SharedState {
+    private:
+        bool state;
+    public:
+        SharedState() {
+            state = false;
+        }
+        bool getState() const {
+            return state;
+        }
+        void toggleState() {
+            state = !state;
+        }
+};
+
+class Door : public Sprite {
+    protected:
+        char previousIcon; // Stores open/closed state
+        SharedState* color;
+    public:
+        Door(int xPos, int yPos, SharedState* c) {
+            icon = '▤';
+            previousIcon = ' ';
+            color = c;
+            x = xPos;
+            y = yPos;
+        }
+        std::string getType() const  {
+            return "Door";
+        }
+        std::string getDescription() const {
+            return "A door that can be opened by stepping on a switch.";
+        }
+        void toggleDoor() {
+            char temp = icon;
+            icon = previousIcon;
+            previousIcon = temp;
+        }
+};
+
+class Switch : public Sprite {
+     protected:
+        char previousIcon;
+        SharedState* color;
+    public:
+        Switch(int xPos, int yPos, SharedState* c) {
+            icon = ' ';
+            previousIcon = ' ';
+            color = c;
+            x = xPos;
+            y = yPos;
+        }
+        std::string getType() const  {
+            return "Switch";
+        }
+        std::string getDescription() const {
+            return "A switch that can open a door when stepped on.";
+        }
+        void toggleDoor() {
+            char temp = icon;
+            icon = previousIcon;
+            previousIcon = temp;
         }
 };
 
