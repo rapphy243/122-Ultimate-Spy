@@ -29,6 +29,9 @@ class Sprite {
         char getIcon() const {
             return icon;
         }
+        virtual bool blocksMovement() const {
+            return icon == '#';
+        }
         int getX() const {
             return x;
         }
@@ -187,51 +190,67 @@ class SharedState {
 
 class Door : public Sprite {
     protected:
-        char previousIcon; // Stores open/closed state
-        SharedState* color;
+        SharedState* sharedState;
+
     public:
         Door(int xPos, int yPos, SharedState* c) {
-            icon = '▤';
-            previousIcon = ' ';
-            color = c;
+            sharedState = c;
             x = xPos;
             y = yPos;
+            icon = 'D';
         }
-        std::string getType() const  {
+
+        std::string getType() const {
             return "Door";
         }
+
         std::string getDescription() const {
             return "A door that can be opened by stepping on a switch.";
         }
+
+        char getIcon() const {
+            return (sharedState != nullptr && sharedState->getState()) ? ' ' : 'D';
+        }
+
+        bool blocksMovement() const {
+            return sharedState == nullptr || !sharedState->getState();
+        }
+
         void toggleDoor() {
-            char temp = icon;
-            icon = previousIcon;
-            previousIcon = temp;
+            if (sharedState != nullptr) {
+                sharedState->toggleState();
+            }
         }
 };
 
 class Switch : public Sprite {
-     protected:
-        char previousIcon;
-        SharedState* color;
+    protected:
+        SharedState* sharedState;
+
     public:
         Switch(int xPos, int yPos, SharedState* c) {
-            icon = ' ';
-            previousIcon = ' ';
-            color = c;
+            sharedState = c;
             x = xPos;
             y = yPos;
+            icon = 'S';
         }
-        std::string getType() const  {
+
+        std::string getType() const {
             return "Switch";
         }
+
         std::string getDescription() const {
-            return "A switch that can open a door when stepped on.";
+            return "A switch that opens a linked door when stepped on.";
         }
+
+        bool blocksMovement() const {
+            return false;
+        }
+
         void toggleDoor() {
-            char temp = icon;
-            icon = previousIcon;
-            previousIcon = temp;
+            if (sharedState != nullptr) {
+                sharedState->toggleState();
+            }
         }
 };
 
