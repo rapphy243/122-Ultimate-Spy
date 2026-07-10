@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <random>
 #include "grid.h"
 
@@ -32,7 +33,7 @@ void playMap(Grid selectedMap) {
 
 
 void menu(char& restartCharacter) {
-    char menuSelected;
+    string menuSelected;
 
     cout << "\n\tWelcome to Ultra-Spy!\n\n";
     cout << "\n\tSelect a level:\n\n";
@@ -41,23 +42,24 @@ void menu(char& restartCharacter) {
     cout << "\t3) Level 3\n";
     cout << "\t4) Quit\n\n";
     cout << "Your selection: ";
-    cin >> menuSelected;
-    cin.ignore(INF_FLAG, '\n');
+    getline(cin, menuSelected);
     cout << clearAndGoHome;
 
-    switch (menuSelected) {
-        case '1':
-            playMap(Map1());
-            break;
-        case '2':
-            playMap(Map2());
-            break;
-        case '3':
-            playMap(Map3());
-            break;
-        default:
-            restartCharacter = 'n';
-            break;
+    if (menuSelected == "1" || menuSelected == "Level 1") {
+        playMap(Map1());
+    }
+    else if (menuSelected == "2" || menuSelected == "Level 2") {
+        playMap(Map2());
+    }
+    else if (menuSelected == "3" || menuSelected == "Level 3") {
+        playMap(Map3());
+    }
+    else if (menuSelected == "4" || menuSelected == "Quit") {
+        restartCharacter = 'n';
+    }
+    else {
+        cout << "Invalid selection. Please try again.\n";
+        menu(restartCharacter);
     }
 
     if (!(restartCharacter == 'n')) {
