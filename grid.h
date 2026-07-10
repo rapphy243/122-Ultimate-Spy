@@ -60,7 +60,7 @@ public:
                     std::cout << ' ';
                 }
                 else {
-                    std::cout << *cell;
+                    std::cout << cell->getIcon();
                 }
             }
             std::cout << std::endl;
@@ -200,6 +200,53 @@ public:
     }
 };
 
+class Map4 : public Grid {
+public:
+    Map4() {
+        board = Board(11, std::vector<Sprite *>(11, nullptr));
+        spy = new Spy(9, 1);
+        guard.push_back(new AreaGuard(5, 1, '^'));
+        guard.push_back(new AreaGuard(5, 9, 'v'));
+        // Walls
+        for (int i = 0; i < 11; i++) { // Top and bottom walls
+            addSprite(i, 0, new Wall(i, 0));
+            addSprite(i, 10, new Wall(i, 10));
+        }
+        for (int i = 1; i < 10; i++) { // Left and right walls
+            addSprite(0, i, new Wall(0, i));
+            addSprite(10, i, new Wall(10, i));
+        }
+
+        for (int i = 1; i < 10; i++) { 
+            if (i == 5) {
+                i++;
+            }
+            addSprite(2, i, new Wall(2, i));
+            addSprite(8, i, new Wall(8, i));
+        }
+
+        //Button 1
+        SharedState* sharedState1 = new SharedState();
+        addSprite(9, 9, new Switch(9, 9, sharedState1));
+        addSprite(2, 5, new Door(2, 5, sharedState1));
+        addSprite(8, 5, new Door(8, 5, sharedState1));
+
+        SharedState *sharedState2 = new SharedState();
+        addSprite(1, 1, new Switch(1, 1, sharedState2));
+        addSprite(1, 6, new Door(1, 6, sharedState2));
+        // Goal
+        addSprite(1, 9, new Goal(1, 9));
+
+        // // Guards
+        for (Guard* g : guard) {
+            addSprite(g->getX(), g->getY(), g);
+        }
+
+        // Spy
+        addSprite(spy->getX(), spy->getY(), spy);
+    }
+};
+
 bool moveSpy(char direction, Grid& map) {
     Board &board = map.getBoard();
     Spy *spy = map.getSpy();
@@ -227,22 +274,26 @@ bool moveSpy(char direction, Grid& map) {
         int nextX = spyX + dx;
         int nextY = spyY + dy;
 
-        Sprite *target = board[nextX][nextY];
+        Sprite* target = board[nextX][nextY];
 
-        if (target->getType() == "Switch") {
-            Switch *switchSprite = dynamic_cast<Switch *>(target);
-            switchSprite->toggleDoor();
-            nextY -= dy;
-            nextX -= dx;
-        }
-        else if (target->getType() == "Door") {
-            Door *doorSprite = dynamic_cast<Door *>(target);
-            if (doorSprite->blocksMovement()) {
-                return false; // Can't move into a closed door
+        if (target != nullptr) {
+            if (target->getType() == "Switch") {
+                Switch *switchSprite = dynamic_cast<Switch *>(target);
+                switchSprite->toggleDoor();
+                nextY -= dy;
+                nextX -= dx;
             }
-            else { // Go past door if it's open
-                nextY += dy;
-                nextX += dx;
+            else if (target->getType() == "Door") {
+                Door *doorSprite = dynamic_cast<Door *>(target);
+                if (doorSprite->blocksMovement())
+                {
+                    return false; // Can't move into a closed door
+                }
+                else
+                { // Go past door if it's open
+                    nextY += dy;
+                    nextX += dx;
+                }
             }
         }
 

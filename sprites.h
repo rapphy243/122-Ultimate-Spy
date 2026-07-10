@@ -26,7 +26,7 @@ class Sprite {
     public:
         virtual std::string getType() const = 0;
         virtual std::string getDescription() const = 0;
-        char getIcon() const {
+        virtual char getIcon() {
             return icon;
         }
         virtual bool blocksMovement() const {
@@ -49,10 +49,6 @@ class Sprite {
         int setY(int newY) {
             y = newY;
             return y;
-        }
-        friend std::ostream &operator<<(std::ostream &out, const Sprite &s) {
-            out << s.icon;
-            return out;
         }
 };
 
@@ -208,8 +204,8 @@ class Door : public Sprite {
             return "A door that can be opened by stepping on a switch.";
         }
 
-        char getIcon() const {
-            return (sharedState != nullptr && sharedState->getState()) ? ' ' : 'D';
+        char getIcon() {
+            return sharedState->getState() ? ' ' : 'D';
         }
 
         bool blocksMovement() const {
@@ -248,9 +244,7 @@ class Switch : public Sprite {
         }
 
         void toggleDoor() {
-            if (sharedState != nullptr) {
-                sharedState->toggleState();
-            }
+            sharedState->toggleState();
         }
 };
 

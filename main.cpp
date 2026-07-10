@@ -82,7 +82,8 @@ void menu(char& restartCharacter) {
     cout << "\t1) Level 1\n";
     cout << "\t2) Level 2\n";
     cout << "\t3) Level 3\n";
-    cout << "\t4) Quit\n\n";
+    cout << "\t4) Level 4\n";
+    cout << "\t5) Quit\n\n";
     cout << "Your selection: ";
     getline(cin, menuSelected);
     cout << clearAndGoHome;
@@ -96,7 +97,10 @@ void menu(char& restartCharacter) {
     else if (menuSelected == "3" || menuSelected == "Level 3") {
         playMap(Map3());
     }
-    else if (menuSelected == "4" || menuSelected == "Quit") {
+    else if (menuSelected == "4" || menuSelected == "Level 4") {
+        playMap(Map4());
+    }
+    else if (menuSelected == "5" || menuSelected == "Quit") {
         restartCharacter = 'n';
     }
     else {
@@ -117,7 +121,7 @@ int main() {
     bool isTest = false;
     char restartCharacter;
     if (isTest) {
-        playMap(Map3());
+        playMap(Map4());
     }
     else {
         do {
