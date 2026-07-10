@@ -8,34 +8,71 @@ using namespace std;
 inline constexpr streamsize INF_FLAG{numeric_limits<streamsize>::max()};
 inline const string clearAndGoHome{"\x1B[2J\x1B[H"};
 
+
+void inspectMap(Grid& map) {
+    char openParenthesis{}, comma{}, closedParenthesis{};
+    int x, y;
+    cout << "Map Inspection (row, column): ";
+    cin >> ws;
+    if (ispunct(cin.peek())) { // Remove any punct
+        cin >> openParenthesis;
+    }
+    cin >> x >> ws; // Set X then remove whitespace
+    if (ispunct(cin.peek())) {
+        cin >> comma;
+    }
+    cin >> y; // Set Y (Using ws eats the \n if there is nothing after)
+    while ((isspace(cin.peek()) && cin.peek() != '\n')) {
+        cin.ignore();
+    }
+    if (ispunct(cin.peek())) {
+        cin >> closedParenthesis;
+    }
+    cin.ignore(INF_FLAG, '\n');
+    if (x < 0 || x >= map.getBoard().size() || y < 0 || y >= map.getBoard()[0].size()) {
+        cout << "Coordinates are out of bounds!\n";
+    }
+    else {
+        char icon = getCellIcon(map.getBoard(), x, y);
+        if (icon == ' ') {
+            cout << "The cell at (" << x << ", " << y << ") is empty.\n";
+        }
+        else {
+            Sprite* sprite = map.getBoard()[x][y];
+            cout << "The cell at (" << x << ", " << y << ") contains a "
+                << sprite->getType() << ": " << sprite->getDescription() << "\n";
+        }
+    }
+}
+
 void playMap(Grid selectedMap) {
     Grid map = selectedMap;
     bool gameOver = map.isGameOver();
     map.printGrid();
     while (!gameOver) {
-        char input;
-        cout << "Enter move (w/a/s/d): ";
+        string input;
+        cout << "Enter move (w/a/s/d) or inspect: ";
         cin >> input;
-        if (moveSpy(input, map)) {
-            moveGuards(map);
-            gameOver = map.isGameOver();
+        if (input == "inspect") {
+            inspectMap(map);
+            map.printGrid();
+        }
+        else {
+            char move = input[0];
+            if (moveSpy(move, map)) {
+                moveGuards(map);
+                gameOver = map.isGameOver();
             if (!gameOver) {
                 cout << clearAndGoHome;
                 map.printGrid();
             }
-        }
-        else {
-            cout << "Invalid move. Try again.\n";
+            }
+            else {
+                cout << "Invalid input. Try again.\n";
+            }
         }
     }
 }
-
-void inspectMap(Grid& map) {
-    string input;
-    cout << "Map Inspection (row, column): ";
-}
-
-
 
 void menu(char& restartCharacter) {
     string menuSelected;
