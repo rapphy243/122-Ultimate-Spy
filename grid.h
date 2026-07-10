@@ -279,8 +279,45 @@ void moveGuards(Grid& map) {
 
         if (getCellIcon(grid, nextX, nextY) != ' ') {
             guard->oppositeDirection();
-            nextX = guardX;
-            nextY = guardY;
+            
+            dx = 0;
+            dy = 0;
+
+            switch (guard->getIcon()) {
+            case '^':
+                dx = -1;
+                break;
+            case '>':
+                dy = 1;
+                break;
+            case 'v':
+                dx = 1;
+                break;
+            case '<':
+                dy = -1;
+                break;
+            }
+
+            visionX = guardX + dx;
+            visionY = guardY + dy;
+            while (getCellIcon(grid, visionX, visionY) != '#') {
+                if (getCellIcon(grid, visionX, visionY) == '@') {
+                    std::cout << "You lose!\n";
+                    map.setGameOver();
+                    break;
+                }
+                visionX += dx;
+                visionY += dy;
+            }
+
+            nextX = guardX + dx;
+            nextY = guardY + dy;
+
+            // If still blocked, stay in place
+            if (getCellIcon(grid, nextX, nextY) != ' ') {
+                nextX = guardX;
+                nextY = guardY;
+            }
         }
 
         grid[guardX][guardY] = nullptr;
