@@ -166,7 +166,7 @@ public:
     Map3() {
         board = Board(11, std::vector<Sprite *>(11, nullptr));
         spy = new Spy(9, 1);
-        guard.push_back(new Guard(4, 5, '<'));
+        guard.push_back(new AreaGuard(4, 5, '>'));
         guard.push_back(new Guard(2, 8, '^'));
         // Walls
         for (int i = 0; i < 11; i++) { // Top and bottom walls
