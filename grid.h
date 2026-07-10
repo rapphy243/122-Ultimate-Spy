@@ -233,6 +233,7 @@ public:
 
         SharedState *sharedState2 = new SharedState();
         addSprite(1, 1, new Switch(1, 1, sharedState2));
+        addSprite(4, 1, new Switch(4, 1, sharedState2));
         addSprite(1, 6, new Door(1, 6, sharedState2));
         // Goal
         addSprite(1, 9, new Goal(1, 9));
@@ -341,6 +342,17 @@ void moveGuards(Grid& map) {
             break;
         }
 
+        int nextX = guardX + dx;
+        int nextY = guardY + dy;
+
+        Sprite *target = grid[nextX][nextY];
+        if (target != nullptr && target->getType() == "Switch")  {
+            Switch *switchSprite = dynamic_cast<Switch *>(target);
+            switchSprite->toggleDoor();
+            nextX += dx;
+            nextY += dy;
+        }
+
         int visionX = guardX + dx;
         int visionY = guardY + dy;
 
@@ -352,9 +364,6 @@ void moveGuards(Grid& map) {
             visionX += dx;
             visionY += dy;
         }
-
-        int nextX = guardX + dx;
-        int nextY = guardY + dy;
 
         if (getCellIcon(grid, nextX, nextY) != ' ') {
             guard->turn();
