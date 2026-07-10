@@ -30,6 +30,11 @@ void playMap(Grid selectedMap) {
     }
 }
 
+void inspectMap(Grid& map) {
+    string input;
+    cout << "Map Inspection (row, column): ";
+}
+
 
 
 void menu(char& restartCharacter) {

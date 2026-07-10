@@ -278,8 +278,8 @@ void moveGuards(Grid& map) {
         int nextY = guardY + dy;
 
         if (getCellIcon(grid, nextX, nextY) != ' ') {
-            guard->oppositeDirection();
-            
+            guard->turn();
+
             dx = 0;
             dy = 0;
 

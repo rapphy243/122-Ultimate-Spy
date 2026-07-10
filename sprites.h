@@ -101,7 +101,7 @@ class Guard : public Sprite {
         std::string getDescription() const {
             return "A guard that patrols along a line.";
         }
-        void oppositeDirection() {
+         virtual void turn() {
             switch (icon) {
             case '^':
                 icon = 'v';
@@ -123,15 +123,11 @@ class Guard : public Sprite {
 
 class AreaGuard : public Guard {
     public:
-        AreaGuard(int xPos, int yPos) {
-            icon = randDirection();
-            x = xPos;
-            y = yPos;
+        AreaGuard(int xPos, int yPos) : Guard(xPos, yPos) {
+
         }
-        AreaGuard(int xPos, int yPos, char dir) {
-            icon = dir;
-            x = xPos;
-            y = yPos;
+        AreaGuard(int xPos, int yPos, char dir) : Guard(xPos, yPos, dir) {
+            
         }
         std::string getType() const  {
             return "Area Guard";
@@ -139,7 +135,7 @@ class AreaGuard : public Guard {
         std::string getDescription() const {
             return "A guard that patrols within a area.";
         }
-        void turnRight() {
+        void turn() {
             switch (icon) {
             case '^':
                 icon = '>';
