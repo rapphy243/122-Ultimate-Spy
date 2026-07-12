@@ -172,15 +172,20 @@ class Spy : public Sprite {
 class SharedState {
     private:
         bool state;
+        std::string name;
     public:
-        SharedState() {
+        SharedState(std::string n) {
             state = false;
+            name = n;
         }
         bool getState() const {
             return state;
         }
         void toggleState() {
             state = !state;
+        }
+        std::string getName() const {
+            return name;
         }
 };
 
@@ -201,7 +206,7 @@ class Door : public Sprite {
         }
 
         std::string getDescription() const {
-            return "A door that can be opened by stepping on a switch.";
+            return "A door that can be opened by stepping on a switch. This door is linked to the " + sharedState->getName() + " switch.";
         }
 
         char getIcon() {
@@ -236,7 +241,7 @@ class Switch : public Sprite {
         }
 
         std::string getDescription() const {
-            return "A switch that opens a linked door when stepped on.";
+            return "A switch that opens a linked door when stepped on. This switch is linked to the " + sharedState->getName() + " door.";
         }
 
         bool blocksMovement() const {

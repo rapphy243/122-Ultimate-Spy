@@ -226,12 +226,12 @@ public:
         }
 
         //Button 1
-        SharedState* sharedState1 = new SharedState();
+        SharedState* sharedState1 = new SharedState("Red");
         addSprite(9, 9, new Switch(9, 9, sharedState1));
         addSprite(2, 5, new Door(2, 5, sharedState1));
         addSprite(8, 5, new Door(8, 5, sharedState1));
 
-        SharedState *sharedState2 = new SharedState();
+        SharedState *sharedState2 = new SharedState("Blue");
         addSprite(1, 1, new Switch(1, 1, sharedState2));
         addSprite(4, 1, new Switch(4, 1, sharedState2));
         addSprite(1, 6, new Door(1, 6, sharedState2));
