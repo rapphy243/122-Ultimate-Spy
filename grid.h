@@ -356,7 +356,7 @@ void moveGuards(Grid& map) {
         int visionX = guardX + dx;
         int visionY = guardY + dy;
 
-        while (getCellIcon(grid, visionX, visionY) != '#') {
+        while (getCellIcon(grid, visionX, visionY) != '#' && getCellIcon(grid, visionX, visionY) != 'D') {
             if (getCellIcon(grid, visionX, visionY) == '@') {
                 std::cout << "You lose!\n";
                 map.setGameOver();
@@ -388,7 +388,7 @@ void moveGuards(Grid& map) {
 
             visionX = guardX + dx;
             visionY = guardY + dy;
-            while (getCellIcon(grid, visionX, visionY) != '#') {
+            while (getCellIcon(grid, visionX, visionY) != '#' && getCellIcon(grid, visionX, visionY) != 'D') {
                 if (getCellIcon(grid, visionX, visionY) == '@') {
                     std::cout << "You lose!\n";
                     map.setGameOver();
