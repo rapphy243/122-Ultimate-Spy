@@ -18,10 +18,22 @@ void inspectMap(Grid& map) {
         cin >> openParenthesis;
     }
     cin >> x >> ws; // Set X then remove whitespace
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore(INF_FLAG, '\n');
+        cout << "Invalid input.\n";
+        return;
+    }
     if (ispunct(cin.peek())) {
         cin >> comma;
     }
     cin >> y; // Set Y (Using ws eats the \n if there is nothing after)
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore(INF_FLAG, '\n');
+        cout << "Invalid input.\n";
+        return;
+    }
     while ((isspace(cin.peek()) && cin.peek() != '\n')) {
         cin.ignore();
     }
@@ -43,6 +55,7 @@ void inspectMap(Grid& map) {
                 << sprite->getType() << ": " << sprite->getDescription() << "\n";
         }
     }
+    cin.clear();
 }
 
 void playMap(Grid selectedMap) {
