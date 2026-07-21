@@ -204,6 +204,10 @@ class Door : public Sprite {
         std::string getType() const {
             return "Door";
         }
+        
+        SharedState* getSharedState() const {
+            return sharedState;
+        }
 
         std::string getDescription() const {
             return "A door that can be opened by stepping on a switch. This door is linked to the " + sharedState->getName() + " switch.";
@@ -238,6 +242,10 @@ class Switch : public Sprite {
 
         std::string getType() const {
             return "Switch";
+        }
+
+        SharedState* getSharedState() const {
+            return sharedState;
         }
 
         std::string getDescription() const {
