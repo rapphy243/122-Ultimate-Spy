@@ -18,6 +18,16 @@ class CustomMap : public Grid {
             gameOver = false;
         }
         bool loadMap(const std::string& filename) {
+            std::ifstream file(filename);
+
+            if (!file.is_open()) {
+                std::cerr << "Error: Could not open file for reading: " << filename << "\n";
+                return false;
+            }
+            
+
+
+            
             return true;
         }
         bool saveMap(const std::string& filename) {
@@ -66,6 +76,9 @@ class CustomMap : public Grid {
                                 file << "S" << " " << link->getName() << " " << s->getX() << " " << s->getY() << "\n";
                             }
                         }
+                    }
+                    else {
+                        return false; // There is something that is not supposed to be in the map.
                     }
                 }
             }
