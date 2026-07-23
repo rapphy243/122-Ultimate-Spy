@@ -75,6 +75,7 @@ void playMap(Grid selectedMap) {
             char move = input[0];
             if (moveSpy(move, map)) {
                 moveGuards(map);
+                map.fixSwitchandDoors();
                 gameOver = map.isGameOver();
             if (!gameOver) {
                 cout << clearAndGoHome;

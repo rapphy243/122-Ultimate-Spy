@@ -40,6 +40,8 @@ protected:
     Board board;
     Spy *spy;
     std::vector<Guard *> guard;
+    std::vector<Switch*> switches;
+    std::vector<Door*> doors;
     bool gameOver;
     void addSprite(int x, int y, Sprite *s) {
         board[x][y] = s;
@@ -49,6 +51,8 @@ public:
     Grid() {
         board = Board(10, std::vector<Sprite *>(10, nullptr));
         spy = nullptr;
+        switches = std::vector<Switch*>();
+        doors = std::vector<Door*>();
         guard = std::vector<Guard *>();
         gameOver = false;
     }
@@ -81,6 +85,33 @@ public:
     }
     std::vector<Guard*>& getGuards() {
         return guard;
+    }
+    std::vector<Switch*>& getSwitches() {
+        return switches;
+    }
+    std::vector<Door*>& getDoors() {
+        return doors;
+    }
+
+    void fixSwitchandDoors() {
+        for (Switch* sw : switches) {
+            if (sw != nullptr) {
+                int x = sw->getX();
+                int y = sw->getY();
+                if (board[x][y] == nullptr) { // Switch was previously removed, re-add it
+                    board[x][y] = sw;
+                }
+            }
+        }
+        for (Door* door : doors) {
+            if (door != nullptr) {
+                int x = door->getX();
+                int y = door->getY();
+                if (board[x][y] == nullptr) { // Door was previously removed, re-add it
+                    board[x][y] = door;
+                }
+            }
+        }
     }
 };
 
@@ -228,13 +259,20 @@ public:
         //Button 1
         SharedState* sharedState1 = new SharedState("Red");
         addSprite(9, 9, new Switch(9, 9, sharedState1));
+        switches.push_back(dynamic_cast<Switch*>(board[9][9]));
         addSprite(2, 5, new Door(2, 5, sharedState1));
         addSprite(8, 5, new Door(8, 5, sharedState1));
+        doors.push_back(dynamic_cast<Door*>(board[2][5]));
+        doors.push_back(dynamic_cast<Door*>(board[8][5]));
+
 
         SharedState *sharedState2 = new SharedState("Blue");
         addSprite(1, 1, new Switch(1, 1, sharedState2));
         addSprite(4, 1, new Switch(4, 1, sharedState2));
+        switches.push_back(dynamic_cast<Switch*>(board[1][1]));
+        switches.push_back(dynamic_cast<Switch*>(board[4][1]));
         addSprite(1, 6, new Door(1, 6, sharedState2));
+        doors.push_back(dynamic_cast<Door*>(board[1][6]));
         // Goal
         addSprite(1, 9, new Goal(1, 9));
 
@@ -281,19 +319,11 @@ bool moveSpy(char direction, Grid& map) {
             if (target->getType() == "Switch") {
                 Switch *switchSprite = dynamic_cast<Switch *>(target);
                 switchSprite->toggleDoor();
-                nextY -= dy;
-                nextX -= dx;
             }
             else if (target->getType() == "Door") {
                 Door *doorSprite = dynamic_cast<Door *>(target);
-                if (doorSprite->blocksMovement())
-                {
+                if (doorSprite->blocksMovement()) {
                     return false; // Can't move into a closed door
-                }
-                else
-                { // Go past door if it's open
-                    nextY += dy;
-                    nextX += dx;
                 }
             }
         }
@@ -349,8 +379,6 @@ void moveGuards(Grid& map) {
         if (target != nullptr && target->getType() == "Switch")  {
             Switch *switchSprite = dynamic_cast<Switch *>(target);
             switchSprite->toggleDoor();
-            nextX += dx;
-            nextY += dy;
         }
 
         int visionX = guardX + dx;
@@ -365,7 +393,7 @@ void moveGuards(Grid& map) {
             visionY += dy;
         }
 
-        if (getCellIcon(grid, nextX, nextY) != ' ') {
+        if (getCellIcon(grid, nextX, nextY) != ' ' &&getCellIcon(grid, nextX, nextY) != 'S') {
             guard->turn();
 
             dx = 0;
