@@ -2,6 +2,7 @@
 #include <string>
 #include <random>
 #include "grid.h"
+#include "mapBuilder.h"
 
 using namespace std;
 
@@ -84,6 +85,27 @@ void playMap(Grid selectedMap) {
                 cout << "Invalid input. Try again.\n";
             }
         }
+    }
+}
+
+void playCustomMap() {
+    CustomMap customMap;
+    string filename;
+    //ask if they have a map they want to load
+    cout << "Do you have a custom map to load? (Y/N): ";
+    char loadChoice;
+    cin >> loadChoice;
+    cin.ignore(INF_FLAG, '\n');
+    if (tolower(loadChoice) == 'y') {
+        cout << "Enter the filename of the custom map to load (including extension): ";
+        getline(cin, filename);
+        if (!customMap.loadMap(filename)) {
+            cout << "Failed to load the custom map.\n";
+        }
+    }
+    else {
+        cout << "Starting with an empty map.\n";
+        
     }
 }
 
