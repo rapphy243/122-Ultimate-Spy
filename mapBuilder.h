@@ -3,18 +3,19 @@
 
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include "grid.h"
 
 class CustomMap : public Grid {
     private: 
-        std::vector<Sprite*> sprites;
+        std::vector<Sprite*> userAddedSprites;
         std::vector<SharedState*> sharedStates;
 
     public:
         CustomMap() {
-            board = Board(10, std::vector<Sprite *>(10, nullptr));
+            board = Board(10, std::vector<Sprite*>(10, nullptr));
             spy = nullptr;
-            guard = std::vector<Guard *>();
+            guard = std::vector<Guard*>();
             gameOver = false;
         }
         bool loadMap(const std::string& filename) {
@@ -24,9 +25,95 @@ class CustomMap : public Grid {
                 std::cerr << "Error: Could not open file for reading: " << filename << "\n";
                 return false;
             }
-            
 
+            int rows, cols;
+            file >> rows >> cols;
+            board = Board(rows, std::vector<Sprite*>(cols, nullptr));
 
+            std::string line;
+            while (std::getline(file, line)) {
+                if (!line.empty()) {
+                    std::istringstream iss(line);
+                    char icon;
+                    iss >> icon;
+                    if (icon == '#') {
+                        int x, y;
+                        iss >> x >> y;
+                        addSprite(x, y, new Wall(x, y));
+                    }
+                    else if (icon == '$') {
+                        int x, y;
+                        iss >> x >> y;
+                        addSprite(x, y, new Goal(x, y));
+                    }
+                    else if (icon == '@') {
+                        int x, y;
+                        iss >> x >> y;
+                        spy = new Spy(x, y);
+                        addSprite(x, y, spy);
+                    }
+                    else if (icon == '^' || icon == '>' || icon == 'v' || icon == '<') {
+                        char type;
+                        int x, y;
+                        iss >> type >> x >> y;
+                        if (type == 'G') {
+                            Guard* g = new Guard(x, y, icon);
+                            guard.push_back(g);
+                            addSprite(x, y, g);
+                        } else if (type == 'A') {
+                            AreaGuard* ag = new AreaGuard(x, y, icon);
+                            guard.push_back(ag);
+                            addSprite(x, y, ag);
+                        }
+                    }
+                    else if (icon == 'D') {
+                        std::string linkName;
+                        int x, y;
+                        iss >> linkName >> x >> y;
+
+                        SharedState* link = nullptr;
+                        for (SharedState* state : sharedStates) {
+                            if (state->getName() == linkName) {
+                                link = state;
+                                break;
+                            }
+                        }
+
+                        if (link == nullptr) {
+                            link = new SharedState(linkName);
+                            sharedStates.push_back(link);
+                        }
+
+                        Door* d = new Door(x, y, link);
+                        addSprite(x, y, d);
+                    }
+                    else if (icon == 'S') {
+                        std::string linkName;
+                        int x, y;
+                        iss >> linkName >> x >> y;
+
+                        SharedState* link = nullptr;
+                        for (SharedState* state : sharedStates) {
+                            if (state->getName() == linkName) {
+                                link = state;
+                                break;
+                            }
+                        }
+
+                        if (link == nullptr) {
+                            link = new SharedState(linkName);
+                            sharedStates.push_back(link);
+                        }
+
+                        Switch* s = new Switch(x, y, link);
+                        addSprite(x, y, s);
+                    }
+                    else {
+                        std::cerr << "Error: Unknown icon '" << icon << "' in map file.\n";
+                        return false;
+                    }
+                }
+            }
             
             return true;
         }
@@ -40,11 +127,14 @@ class CustomMap : public Grid {
 
             file << board.size() << " " << board[0].size() << "\n";
 
-            for (Sprite* s : sprites) {
+            for (Sprite* s : userAddedSprites) {
                 if (s != nullptr) {
                     char icon = s->getIcon();
                     if (icon == '#') {
                         file << "#" << " " << s->getX() << " " << s->getY() << "\n";
+                    }
+                    else if (icon == '$') {
+                        file << "$" << " " << s->getX() << " " << s->getY() << "\n";
                     }
                     else if (icon == '@') {
                         file << icon << " " << s->getX() << " " << s->getY() << "\n";
@@ -55,9 +145,6 @@ class CustomMap : public Grid {
                         } else {
                             file << icon << " " << "G" << " " << s->getX() << " " << s->getY() << " " << icon << "\n";
                         }
-                    }
-                    else if (icon == '$') {
-                        file << "$" << " " << s->getX() << " " << s->getY() << "\n";
                     }
                     else if (icon == 'D') {
                         Door* door = dynamic_cast<Door*>(s);
@@ -82,29 +169,30 @@ class CustomMap : public Grid {
                     }
                 }
             }
+
             file.close();
             return true;
         }
         void addSprite(int x, int y, Sprite *s) {
             board[x][y] = s;
-            sprites.push_back(s);
+            userAddedSprites.push_back(s);
         }
         void removeSprite(int x, int y) {
             Sprite* s = board[x][y];
             if (s != nullptr) {
-                auto it = std::find(sprites.begin(), sprites.end(), s);
-                if (it != sprites.end()) {
+                auto it = std::find(userAddedSprites.begin(), userAddedSprites.end(), s);
+                if (it != userAddedSprites.end()) {
                     delete *it;
-                    sprites.erase(it);
+                    userAddedSprites.erase(it);
                 }
                 board[x][y] = nullptr;
             }
         }
         ~CustomMap() {
-            for (Sprite* s : sprites) {
+            for (Sprite* s : userAddedSprites) {
                 delete s;
             }
-            sprites.clear();
+            userAddedSprites.clear();
         }
 };
 
