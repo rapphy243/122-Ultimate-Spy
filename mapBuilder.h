@@ -173,6 +173,18 @@ class CustomMap : public Grid {
             file.close();
             return true;
         }
+        void setDimensions(int rows, int cols) {
+            board = Board(rows, std::vector<Sprite*>(cols, nullptr));
+            //Additionally fill the board with walls on the edges
+            for (int i = 0; i < rows; ++i) {
+                addSprite(i, 0, new Wall(i, 0));
+                addSprite(i, cols - 1, new Wall(i, cols - 1));
+            }
+            for (int j = 0; j < cols; ++j) {
+                addSprite(0, j, new Wall(0, j));
+                addSprite(rows - 1, j, new Wall(rows - 1, j));
+            }
+        }
         void addSprite(int x, int y, Sprite *s) {
             board[x][y] = s;
             userAddedSprites.push_back(s);

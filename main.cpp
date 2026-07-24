@@ -92,20 +92,30 @@ void playMap(Grid selectedMap) {
 void playCustomMap() {
     CustomMap customMap;
     string filename;
-    //ask if they have a map they want to load
+
     cout << "Do you have a custom map to load? (Y/N): ";
     char loadChoice;
     cin >> loadChoice;
     cin.ignore(INF_FLAG, '\n');
     if (tolower(loadChoice) == 'y') {
-        cout << "Enter the filename of the custom map to load (including extension): ";
+        cout << "Enter the filename of the custom map to play (including extension .lvl): ";
         getline(cin, filename);
         if (!customMap.loadMap(filename)) {
             cout << "Failed to load the custom map.\n";
+            return;
         }
+        playMap(customMap);
+
     }
     else {
-        cout << "Starting with an empty map.\n";
+        cout << "Creating new custom map.\n";
+        cout << "Please enter the dimensions of the map (rows columns): ";
+        int rows, cols;
+        cin >> rows >> cols;
+        cin.ignore(INF_FLAG, '\n');
+        customMap = CustomMap();
+        customMap.setDimensions(rows, cols);
+        
         
     }
 }
@@ -138,7 +148,7 @@ void menu(char& restartCharacter) {
         playMap(Map4());
     }
     else if (menuSelected == "5" || menuSelected == "Custom Map") {
-       
+       playCustomMap();
     }
     else if (menuSelected == "6" || menuSelected == "Quit") {
         restartCharacter = 'n';
