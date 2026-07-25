@@ -157,8 +157,11 @@ void playCustomMap() {
     cin >> loadChoice;
     cin.ignore(INF_FLAG, '\n');
     if (tolower(loadChoice) == 'y') {
-        cout << "Enter the filename of the custom map to play (including extension .lvl): ";
+        cout << "Enter the filename of the custom map to play: ";
         getline(cin, filename);
+        if (filename.size() < 4 || filename.substr(filename.size() - 4) != ".lvl") {
+            filename += ".lvl";
+        }
         if (!customMap.loadMap(filename)) {
             cout << "Failed to load the custom map.\n";
             return;
