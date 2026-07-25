@@ -86,6 +86,7 @@ class CustomMap : public Grid {
 
                         Door* d = new Door(x, y, link);
                         addSprite(x, y, d);
+                        doors.push_back(d);
                     }
                     else if (icon == 'S') {
                         std::string linkName;
@@ -107,6 +108,7 @@ class CustomMap : public Grid {
 
                         Switch* s = new Switch(x, y, link);
                         addSprite(x, y, s);
+                        switches.push_back(s);
                     }
                     else {
                         std::cerr << "Error: Unknown icon '" << icon << "' in map file.\n";
@@ -199,6 +201,12 @@ class CustomMap : public Grid {
                 }
                 board[x][y] = nullptr;
             }
+        }
+        std::vector<Switch*>& getSwitches() {
+            return switches;
+        }
+        std::vector<Door*>& getDoors() {
+            return doors;
         }
         ~CustomMap() {
             for (Sprite* s : userAddedSprites) {
